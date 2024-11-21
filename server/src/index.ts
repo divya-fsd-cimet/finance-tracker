@@ -7,8 +7,23 @@ async function startServer() {
   const PORT = process.env.PORT || 8080;
   app.use(express.json())
   const gqlServer = new ApolloServer({
-    typeDefs: "",
-    resolvers: {},
+    typeDefs: `
+    type Query{
+        hello: String
+        say(name: String) : String}
+    type Mutation{
+        createUser(firstName: String!, lastName: String!, email: String!, password: String!)
+    }
+        `,
+    resolvers: {
+        Query:{
+            hello: ()=> "Hey welcome",
+            say: (_, {name} : {name: string} ) => `hey ${name}`,
+        },
+        Mutation:{
+            createUser: async(_, {firstName, lastName, email, password} : {firstName : String, lastName: String, email: String, password: String})
+        }
+    },
   });
 
   await gqlServer.start();
@@ -20,3 +35,5 @@ async function startServer() {
   app.use("/graphql", expressMiddleware(gqlServer));
   app.listen(PORT, () => console.log(`server is listening on port ${PORT}`));
 }
+
+startServer()

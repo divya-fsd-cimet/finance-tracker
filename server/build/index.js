@@ -21,8 +21,23 @@ function startServer() {
         const PORT = process.env.PORT || 8080;
         app.use(express_1.default.json());
         const gqlServer = new server_1.ApolloServer({
-            typeDefs: "",
-            resolvers: {},
+            typeDefs: `
+    type Query{
+        hello: String
+        say(name: String) : String}
+    type Mutation{
+        createUser(firstName: String!, lastName: String!, email: String!, password: String!)
+    }
+        `,
+            resolvers: {
+                Query: {
+                    hello: () => "Hey welcome",
+                    say: (_, { name }) => `hey ${name}`,
+                },
+                Mutation: {
+                    createUser: async(_, { firstName, lastName, email, password }, { firstName: String, lastName: String, email: String, password: String })
+                }
+            },
         });
         yield gqlServer.start();
         app.get("/", (req, res) => {
@@ -32,3 +47,4 @@ function startServer() {
         app.listen(PORT, () => console.log(`server is listening on port ${PORT}`));
     });
 }
+startServer();
